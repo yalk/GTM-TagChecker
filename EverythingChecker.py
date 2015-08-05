@@ -6,7 +6,7 @@ user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebK
 headers = { 'User-Agent' : user_agent }
 
 #Replace the address string with appropriate values
-address='C:\\Users\\For Users\\Desktop\\lodha\\siteLinks'
+address='C:\\Users\\For Users\\Desktop\\lodha\\newTool\\siteLinks'
 siteLinks = open(address, 'r')
 
 #Used if there is no Google Tag Manager code present at all.
@@ -19,7 +19,7 @@ headerForCSV="No,Link,Retrieved,Status\n"
 outputfile.write(headerForCSV)
 
 #Replace 295 with number of lines on the file
-for i in range(0,41):
+for i in range(0,224):
 	currentPage=siteLinks.readline()
 	outputLine=""+str(i+1)+","+str(currentPage.splitlines()[0])+", "
 
@@ -41,8 +41,8 @@ for i in range(0,41):
 	#Regular Expression to detect GTM Object IDs. Feel free to change it.
 	#RE= re.findall(r'dataLayer = \[\]', page)
 	#RE= re.findall(r'dataLayer ?= ?\[\]', page)
-	RE= re.findall(r'_trackPageview', page)
-	#RE= re.findall(r'Weybeo_widget', page)
+	#RE= re.findall(r'gaq\.push', page)
+	RE= re.findall(r'(?m)^(?!//)Weybeo_widget', page)
 	#RE= re.findall(r'GTM-.*"', page)
 	#RE= re.findall(r'gaq\.push', page)
 
@@ -53,14 +53,14 @@ for i in range(0,41):
 		#if j.lower()=='dataLayer = []'.lower():
 		#if j.lower()=='gaq.push'.lower():
 		#if j.lower()=='datalayer = []'.lower():
-		if j.lower()=='_trackPageview'.lower():
+		if j.lower()==r'Weybeo_widget'.lower():
 		#if j.lower()!=r'GTM-Q8FF"'.lower():
 			outputfile.write(""+j+",PASSED\n")
-			print(""+j+", PASSED"),
+			print(" "+j+", PASSED"),
 			flag=1
 		else:
 			outputfile.write(""+j+",FAILED\n")
-			print(""+j+", FAILED"),
+			print(" "+j+", FAILED"),
 			flag=1
 		print ""
 	if flag==0:
