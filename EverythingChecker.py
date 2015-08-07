@@ -29,7 +29,7 @@ for i in range(0,60):
 	#Request the webpage source
 	req = urllib2.Request(currentPage, None, headers)
 	
-	#Uncomment if site needs password
+	#UNCOMMENT IF AUTHENTICATION IS REQUIRED ON THE WEBSITE
 	#base64string = base64.encodestring('%s:%s' % ('username', 'password')).replace('\n', '')
 	#req.add_header("Authorization", "Basic %s" % base64string)   
 	
@@ -40,7 +40,9 @@ for i in range(0,60):
 	page = re.sub(re.compile("/\*.*?\*/", re.DOTALL) , "", page) 	#Remove all occurance streamed comments (/*Javascript Multiline COMMENT */) from string
 	page = re.sub(re.compile("<!--.*?-->", re.DOTALL) , "", page) 	#Remove all occurance streamed comments (<!--HTML Multiline COMMENT-->) from string
 	#page = re.sub(re.compile("//.*?\n") , "", page) 				#Remove all occurance singleline comments (//COMMENT\n ) from string
-	
+	#NOTE: ^THIS RARELY WORKS. HIGH CHANCE IT'LL BREAK THE HTML CODE BECAUSE // CAN ALSO BE HTTP LINKS.
+	#UPGRADE CAN BE LOOK BEHIND AND LOOK AHEAD REGEXs. LOOK BEHIND FOR http:, LOOK AHEAD FOR wwww./etc.
+
 	flag=0
 
 	#Regular Expression to detect GTM Object IDs. Feel free to change it.
