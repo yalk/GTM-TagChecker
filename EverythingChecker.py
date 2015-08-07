@@ -1,4 +1,4 @@
-import urllib2
+import urllib2, base64
 import re
 
 #Browser related tags
@@ -6,20 +6,20 @@ user_agent = 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebK
 headers = { 'User-Agent' : user_agent }
 
 #Replace the address string with appropriate values
-address='C:\\Users\\For Users\\Desktop\\lodha\\newTool\\siteLinks'
+address='C:\\Users\\For Users\\Desktop\\newTool\\siteLinks'
 siteLinks = open(address, 'r')
 
 #Used if there is no Google Tag Manager code present at all.
 
 flag=0
-address2='C:\\Users\\For Users\\Desktop\\lodha\\newTool\\outputCSV.csv'
+address2='C:\\Users\\For Users\\Desktop\\newTool\\outputCSV.csv'
 outputfile = open(address2, 'w')
 
 headerForCSV="No,Link,Retrieved,Status\n"
 outputfile.write(headerForCSV)
 
 #Replace 295 with number of lines on the file
-for i in range(0,224):
+for i in range(0,60):
 	currentPage=siteLinks.readline()
 	outputLine=""+str(i+1)+","+str(currentPage.splitlines()[0])+", "
 
@@ -28,6 +28,11 @@ for i in range(0,224):
 
 	#Request the webpage source
 	req = urllib2.Request(currentPage, None, headers)
+	
+	#Uncomment if site needs password
+	#base64string = base64.encodestring('%s:%s' % ('username', 'password')).replace('\n', '')
+	#req.add_header("Authorization", "Basic %s" % base64string)   
+	
 	response = urllib2.urlopen(req)
 	page = response.read()
 	#Resetting Flag
@@ -40,9 +45,9 @@ for i in range(0,224):
 
 	#Regular Expression to detect GTM Object IDs. Feel free to change it.
 	#RE= re.findall(r'dataLayer = \[\]', page)
-	#RE= re.findall(r'dataLayer ?= ?\[\]', page)
+	RE= re.findall(r'dataLayer ?= ?\[\]', page)
 	#RE= re.findall(r'gaq\.push', page)
-	RE= re.findall(r'(?m)^(?!//)Weybeo_widget', page)
+	#RE= re.findall(r'(?m)^(?!//)Weybeo_widget', page)
 	#RE= re.findall(r'GTM-.*"', page)
 	#RE= re.findall(r'gaq\.push', page)
 
@@ -52,9 +57,9 @@ for i in range(0,224):
 		#dataLayer = [];
 		#if j.lower()=='dataLayer = []'.lower():
 		#if j.lower()=='gaq.push'.lower():
-		#if j.lower()=='datalayer = []'.lower():
-		if j.lower()==r'Weybeo_widget'.lower():
-		#if j.lower()!=r'GTM-Q8FF"'.lower():
+		if j.lower()=='datalayer = []'.lower():
+		#if j.lower()==r'Weybeo_widget'.lower():
+		#if j.lower()==r'GTM-535JCM"'.lower():
 			outputfile.write(""+j+",PASSED\n")
 			print(" "+j+", PASSED"),
 			flag=1
