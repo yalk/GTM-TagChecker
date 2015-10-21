@@ -9,6 +9,10 @@ headers = { 'User-Agent' : user_agent }
 address='siteLinks'
 siteLinks = open(address, 'r')
 
+numberOfLinks=0;
+with open(address) as temp_f:
+    numberOfLinks= sum(1 for _ in temp_f)
+temp_f.close()
 #Used if there is no Google Tag Manager code present at all.
 
 flag=0
@@ -19,7 +23,7 @@ headerForCSV="No,Link,Retrieved,Status,Retrieved,Status,Retrieved,Status\n"
 outputfile.write(headerForCSV)
 
 #Replace 295 with number of lines on the file
-for i in range(0,6):
+for i in range(0,numberOfLinks):
 #for i in range(0,10):
 	try:
 		currentPage=siteLinks.readline()
@@ -66,7 +70,7 @@ for i in range(0,6):
 
 			#GTM
 
-			if j.lower()==r'GTM-PL9Z33'.lower():
+			if j.lower()==r'GTM-MKVL'.lower():
 				outputfile.write(","+j+",GTM_PASSED")
 				print(","+j+", GTM_PASSED"),
 				flag=1
