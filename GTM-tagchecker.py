@@ -1,6 +1,9 @@
 import urllib2, base64
 import re
 import csv
+import time
+
+
 
 def fetchpage(URL=None, username=None, password=None):
 
@@ -47,8 +50,8 @@ def checkGTM(page_source):
 		GTMStatusList[2]="GTM_NO"
 	#print GTMStatusList,
 	return GTMStatusList
-	
 
+	
 
 def checkGA(page_source):
 	
@@ -76,6 +79,33 @@ def checkGA(page_source):
 	return GAStatusList
 
 
+
+def checkAdobe(page_source):
+	
+	GAStatusList=[None]*3
+	RE_GA= re.findall("//assets\.adobedtm\.com/.*?\.js",page_source)
+	
+	for k in RE_GA:
+		RE_GA_trimmer= re.findall("//assets\.adobedtm\.com/.*?\.js",str(k))
+		if(RE_GA_trimmer!=None):
+			if("ADOBE_YES" not in GAStatusList):
+				GAStatusList[0]="ADOBE_YES"
+			
+			if RE_GA_trimmer not in GAStatusList:
+				if GAStatusList[2]==None:
+					GAStatusList[2]=str(RE_GA_trimmer[0])
+				
+				else:
+					GAStatusList[2]=GAStatusList[2]+"|"+str(RE_GA_trimmer[0])
+		
+	if GAStatusList[0]==None:
+		GAStatusList[0]="ADOBE_ABSENT"
+		GAStatusList[2]="ADOBE_NO"
+	#print GAStatusList
+	return GAStatusList
+
+
+
 def init_output(outputCSVFile=None):
 	
 	if(outputCSVFile!=None):
@@ -89,7 +119,7 @@ def writer_and_printer(outputCSVFile, URL_GTM_and_GA_status):
 	writerobject=csv.writer(outputCSVFile, quoting=csv.QUOTE_ALL)
 	writerobject.writerow(URL_GTM_and_GA_status)
 
-	print URL_GTM_and_GA_status
+	print URL_GTM_and_GA_status,
 
 
 
@@ -109,10 +139,13 @@ def main():
 	init_output(outputCSVFile)
 
 	siteLinks= open(addressOfInputFile, 'r')
-
+	startTime= time.time()
 	for i in range(0,numberOfLinks):
 
 		try:
+
+			interTime= time.time()
+
 			URLList= [None]*2
 			URL= siteLinks.readline().splitlines()[0]
 			URLLine= ""+str(i+1)+","+str(URL)
@@ -122,21 +155,36 @@ def main():
 
 			page_source= fetchpage(URL)
 			
+			#GTM
 			GTMStatusList= checkGTM(page_source)
 			GTMs= str(GTMStatusList[2])
-			countOfGTMCodes= int(GTMs.count('|')) +1
+			countOfGTMCodes= int(GTMs.count('GTM-'))
+			#if(countOfGTMCodes>0):
+			#	countOfGTMCodes= countOfGTMCodes +1
 			GTMStatusList[1]= countOfGTMCodes
 			
-
+			#GA
 			GAStatusList= checkGA(page_source)
 			GAs= str(GAStatusList[2])
-			countofGACodes= int(GAs.count('|')) +1
-			GAStatusList[1]= countofGACodes
-
-			URL_GTM_and_GA_status= URLList +GTMStatusList +GAStatusList
+			countOfGACodes= int(GAs.count('UA-'))
+			#if(countOfGACodes>0):
+			#	countOfGACodes= countOfGACodes
+			GAStatusList[1]= countOfGACodes
 			
-			writer_and_printer(outputCSVFile, URL_GTM_and_GA_status)
+			#ADOBE
+			AdobeStatusList= checkAdobe(page_source)
+			Adobes= str(AdobeStatusList[2])
+			countOfAdobeCodes= int(Adobes.count('adobe'))
+			#if(countOfGACodes>0):
+			#	countOfGACodes= countOfGACodes
+			AdobeStatusList[1]= countOfAdobeCodes
 
+
+			URL_Code_status= URLList +AdobeStatusList +GTMStatusList +GAStatusList
+			
+			writer_and_printer(outputCSVFile, URL_Code_status)
+			endTime= time.time()
+			print "I: "+str(endTime-interTime)+"\tT: "+str(endTime-startTime)
 		except:
 			continue
 	
