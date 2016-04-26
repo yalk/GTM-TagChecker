@@ -104,12 +104,36 @@ def checkAdobe(page_source):
 	#print GAStatusList
 	return GAStatusList
 
+def checkTealium(page_source):
+	
+	TealiumStatusList=[None]*3
+	#//tags.tiqcdn.com/
+	RE_TEALIUM= re.findall("\/\/tags\.tiqcdn.com\/.*?\.js", page_source)
+	#//tags.tiqcdn.com/utag/telenor/telenor.no/prod/utag.sync.js
+	for k in RE_TEALIUM:
+		RE_Tealium_trimmer= re.findall("\/\/tags\.tiqcdn.com\/.*?\.js",str(k))
+		if(RE_Tealium_trimmer!=None):
+			if("TEALIUM_YES" not in TealiumStatusList):
+				TealiumStatusList[0]="TEALIUM_YES"
+			
+			if RE_Tealium_trimmer not in TealiumStatusList:
+				if TealiumStatusList[2]==None:
+					TealiumStatusList[2]=str(RE_Tealium_trimmer[0])
+				
+				else:
+					TealiumStatusList[2]=TealiumStatusList[2]+"|"+str(RE_Tealium_trimmer[0])
+		
+	if TealiumStatusList[0]==None:
+		TealiumStatusList[0]="TEALIUM_ABSENT"
+		TealiumStatusList[2]="TEALIUM_NO"
+	#print GAStatusList
+	return TealiumStatusList
 
 
 def init_output(outputCSVFile=None):
 	
 	if(outputCSVFile!=None):
-		headerForCSV="No,URL,GTM_Found,NoOfGTM,GTM_Code,GA_Found,NoOfGA,GA_Code\n"
+		headerForCSV="No,URL,GTM_Found,NoOfGTM,GTM_Code,GA_Found,NoOfGA,GA_Code,Adobe_Found,NoOfAdobe,Adobe_Code,Tealium_Found,NoOfTealium,Tealium_Code\n"
 		outputCSVFile.write(headerForCSV)	
 
 
@@ -142,51 +166,58 @@ def main():
 	startTime= time.time()
 	for i in range(0,numberOfLinks):
 
-		try:
+	#try:
 
-			interTime= time.time()
+		interTime= time.time()
 
-			URLList= [None]*2
-			URL= siteLinks.readline().splitlines()[0]
-			URLLine= ""+str(i+1)+","+str(URL)
+		URLList= [None]*2
+		URL= siteLinks.readline().splitlines()[0]
+		URLLine= ""+str(i+1)+","+str(URL)
 
-			URLList[0]= i+1
-			URLList[1]= URL
+		URLList[0]= i+1
+		URLList[1]= URL
 
-			page_source= fetchpage(URL)
-			
-			#GTM
-			GTMStatusList= checkGTM(page_source)
-			GTMs= str(GTMStatusList[2])
-			countOfGTMCodes= int(GTMs.count('GTM-'))
-			#if(countOfGTMCodes>0):
-			#	countOfGTMCodes= countOfGTMCodes +1
-			GTMStatusList[1]= countOfGTMCodes
-			
-			#GA
-			GAStatusList= checkGA(page_source)
-			GAs= str(GAStatusList[2])
-			countOfGACodes= int(GAs.count('UA-'))
-			#if(countOfGACodes>0):
-			#	countOfGACodes= countOfGACodes
-			GAStatusList[1]= countOfGACodes
-			
-			#ADOBE
-			AdobeStatusList= checkAdobe(page_source)
-			Adobes= str(AdobeStatusList[2])
-			countOfAdobeCodes= int(Adobes.count('adobe'))
-			#if(countOfGACodes>0):
-			#	countOfGACodes= countOfGACodes
-			AdobeStatusList[1]= countOfAdobeCodes
+		page_source= fetchpage(URL)
+		
+		#GTM
+		GTMStatusList= checkGTM(page_source)
+		GTMs= str(GTMStatusList[2])
+		countOfGTMCodes= int(GTMs.count('GTM-'))
+		#if(countOfGTMCodes>0):
+		#	countOfGTMCodes= countOfGTMCodes +1
+		GTMStatusList[1]= countOfGTMCodes
+		
+		#GA
+		GAStatusList= checkGA(page_source)
+		GAs= str(GAStatusList[2])
+		countOfGACodes= int(GAs.count('UA-'))
+		#if(countOfGACodes>0):
+		#	countOfGACodes= countOfGACodes
+		GAStatusList[1]= countOfGACodes
+		
+		#ADOBE
+		AdobeStatusList= checkAdobe(page_source)
+		Adobes= str(AdobeStatusList[2])
+		countOfAdobeCodes= int(Adobes.count('adobe'))
+		#if(countOfGACodes>0):
+		#	countOfGACodes= countOfGACodes
+		AdobeStatusList[1]= countOfAdobeCodes
 
+		#ADOBE
+		TealiumStatusList= checkTealium(page_source)
+		Tealiums= str(TealiumStatusList[2])
+		countOfTealiumCodes= int(Tealiums.count('adobe'))
+		#if(countOfGACodes>0):
+		#	countOfGACodes= countOfGACodes
+		TealiumStatusList[1]= countOfTealiumCodes
 
-			URL_Code_status= URLList +AdobeStatusList +GTMStatusList +GAStatusList
-			
-			writer_and_printer(outputCSVFile, URL_Code_status)
-			endTime= time.time()
-			print "I: "+str(endTime-interTime)+"\tT: "+str(endTime-startTime)
-		except:
-			continue
+		URL_Code_status= URLList +GTMStatusList +GAStatusList +AdobeStatusList +TealiumStatusList
+		
+		writer_and_printer(outputCSVFile, URL_Code_status)
+		endTime= time.time()
+		print "I: "+str(endTime-interTime)+"\tT: "+str(endTime-startTime)
+	#except:
+		#continue
 	
 	siteLinks.close()
 	outputCSVFile.close()
