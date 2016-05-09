@@ -1,3 +1,6 @@
+#Original can be found at https://github.com/yalk/GTM-TagChecker
+#Reach out to me on: https://www.singhankur.me/
+
 import urllib2, base64
 import re
 import csv
