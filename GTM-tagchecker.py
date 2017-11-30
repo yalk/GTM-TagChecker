@@ -41,8 +41,12 @@ def checkCustomCode(page_source, regex, codename):
 				GAStatusList[0]=""+codename+"_YES"
 			
 			if RE_GA_trimmer not in GAStatusList:
-				#print RE_GA_trimmer
+				if codename == 'SitCat':
+					RE_GA_trimmer[0] = filter(None, list(RE_GA_trimmer[0]))[0]
+				#print "fun-checkCode-re_ga_trimmer="+str((RE_GA_trimmer[0])),#str(type(RE_GA_trimmer[0](0))),
+
 				if GAStatusList[2]==None:
+					#print "fun-checkCode-re_ga_trimmer="+str(RE_GA_trimmer[0]),
 					GAStatusList[2]=str(RE_GA_trimmer[0])
 				
 				else:
@@ -59,9 +63,9 @@ def checkCustomCode(page_source, regex, codename):
 def init_output(outputCSVFile=None):
 	
 	if(outputCSVFile!=None):
-		headerForCSV="No,URL,GTM_Found,NoOfGTM,GTM_Code,GA_Found,NoOfGA,GA_Code,Adobe_Found,NoOfAdobe,Adobe_Code,AdobePagePath_Found,NoOfAdobePagePath,AdobePagePath_Code,Tealium_Found,NoOfTealium,Tealium_Code,EnsightenBootstrap_Found,NoOfEnsightenBootstrap,EnsightenBootstrap_Code,sCode_Found,NoOfsCode,sCode_Code,TestnTarget_Found,NoOfTestnTarget,TestnTarget_Code,Facebook_Found,NoOfFacebook,Facebook_Code,DCM_Found,NoOfDCM,DCM_Code,AdWords_Found,NoOfAdwords,AdWords_Code\n"
+		headerForCSV="No,URL,GTM_Found,NoOfGTM,GTM_Code,GA_Found,NoOfGA,GA_Code,Adobe_Found,NoOfAdobe,Adobe_Code,EnsightenBootstrap_Found,NoOfEnsightenBootstrap,EnsightenBootstrap_Code,Facebook_Found,NoOfFacebook,Facebook_Code,DCM_Found,NoOfDCM,DCM_Code,AdWords_Found,NoOfAdwords,AdWords_Code\n"
 		#URL_Code_status= URLList +GTMStatusList +GAStatusList +AdobeStatusList +AdobePagePathStatusList +TealiumStatusList +EnsightenBootstrapStatusList +sCodeStatusList +TestnTargetStatusList +FacebookStatusList +DCMPixelStatusList +AdWordsPixelStatusList
-		outputCSVFile.write(headerForCSV)	
+		outputCSVFile.write(headerForCSV)
 
 
 
@@ -138,38 +142,38 @@ def main():
 			
 			#Custom Codes
 			#regex= re.compile('GTM-.*?(?=\W)')
-			regex = r"Site_Catalyst\.js"
+			#AU - Site_Catalyst.js
+			#HK - Site_Catalyst.js
+			#CN - SC_code1.js
+			#CN - SC_code1.js
+			#SG - SC_code.js
+			#ID - SC_code.js
+			#TW - citi_s_code.js
+			#TH - citi_s_code.js
+			#IN - s_code.js
+			
+			regex = r"((Site_Catalyst|(SC|citi_s|s)_code(1?))\.js)"
+
+			#regex = r"(Site_Catalyst\.js)|(SC_code1\.js)|(citi_s_code\.js)|(SC_code\.js)|(s_code\.js)|(page_code.js)"
 			codename= "SitCat"
 			CustomCodeStatusList= checkCustomCode(page_source, regex, codename)
+			
 			CustomCodes= str(CustomCodeStatusList[2])
-			countOfCustomCodes= int(CustomCodes.count('Site_Catalyst'))
+			countOfCustomCodes= int(CustomCodes.count('.js'))
 			#if(countOfGACodes>0):
 			#	countOfGACodes= countOfGACodes
 			CustomCodeStatusList[1]= countOfCustomCodes
-
+			#print CustomCodeStatusList
 			#Uncomment the append statuslist variable from the below line
 			URL_Code_status= URL_Code_status +CustomCodeStatusList
 
 			#Custom Codes
 			#regex= re.compile('GTM-.*?(?=\W)')
-			regex = r"SC_code1\.js"
-			codename= "SitCat"
-			CustomCodeStatusList= checkCustomCode(page_source, regex, codename)
-			CustomCodes= str(CustomCodeStatusList[2])
-			countOfCustomCodes= int(CustomCodes.count('SC_code1'))
-			#if(countOfGACodes>0):
-			#	countOfGACodes= countOfGACodes
-			CustomCodeStatusList[1]= countOfCustomCodes
-
-			#Uncomment the append statuslist variable from the below line
-			URL_Code_status= URL_Code_status +CustomCodeStatusList
-
-			#Custom Codes
-			#regex= re.compile('GTM-.*?(?=\W)')
-			regex = r"Bootstrap.js"
+			regex = r"prod/Bootstrap.js"
 			codename= "Ensighten"
 			CustomCodeStatusList= checkCustomCode(page_source, regex, codename)
 			CustomCodes= str(CustomCodeStatusList[2])
+			#print CustomCodeStatusList
 			countOfCustomCodes= int(CustomCodes.count('Bootstrap.js'))
 			#if(countOfGACodes>0):
 			#	countOfGACodes= countOfGACodes
